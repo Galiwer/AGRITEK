@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGRITEK</title>
+    <style>
+        body {
+            background-color: #F5F5F5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .data-head {
+            text-align: center;
+            font-size: 45px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            padding: 20px;
+            background-color: #FFF;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+        }
+
+        .data-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .data-item {
+            flex: 1;
+            background-color: #FFF;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .data-item h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .led-control {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Styles for switches */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #6EB7FF;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Styles for gauges */
+        .gauge {
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .gauge__body {
+            width: 100%;
+            height: 0;
+            padding-bottom: 50%;
+            background: #b4c0be;
+            position: relative;
+            border-top-left-radius: 100% 200%;
+            border-top-right-radius: 100% 200%;
+            overflow: hidden;
+        }
+
+        .gauge__fill {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: inherit;
+            height: 100%;
+            background: #009578;
+            transform-origin: center top;
+            transition: transform 0.2s ease-out;
+        }
+
+        .gauge__cover {
+            width: 75%;
+            height: 150%;
+            background: #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 25%;
+            box-sizing: border-box;
+        }
+
+        .gauge__cover .value {
+            font-size: 32px;
+            color: #004033;
+        }
+
+        /* Flex container for moisture sensors */
+        .moisture-sensors {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        /* Styles for moisture sensor containers */
+        .moisture-item {
+            flex: 1;
+            background-color: #FFF;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .moisture-item h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="data-head">Live Sensor Readings</div>
+
+    <div class="data-container">
+        <!-- Temperature Section -->
+        <div class="data-item">
+            <h2>Temperature</h2>
+            <div class="gauge" id="gaugeTemp">
+                <div class="gauge__body">
+                    <div class="gauge__fill"></div>
+                    <div class="gauge__cover">
+                        <p class="value" id="temperature">22 &#8451;</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Humidity Section -->
+        <div class="data-item">
+            <h2>Humidity</h2>
+            <div class="gauge" id="gaugeHumidity">
+                <div class="gauge__body">
+                    <div class="gauge__fill"></div>
+                    <div class="gauge__cover">
+                        <p class="value" id="humidity">10%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Moisture Sensor Containers -->
+    <div class="moisture-sensors">
+        <div class="moisture-item">
+            <h2>Crop no 1</h2>
+            <h4>Moisture Level</h4>
+            <div class="gauge" id="gaugeMoisture1">
+                <div class="gauge__body">
+                    <div class="gauge__fill"></div>
+                    <div class="gauge__cover">
+                        <p class="value" id="moisture1">0%</p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- LED control switches for Crop no 1 -->
+            <div class="data-item">
+            <div class="led-control">
+ 
+                <h4>RED LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led1Switch" onchange="toggleled('led1', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>BLUE LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led2Switch" onchange="toggleled('led2', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>UV LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led3Switch" onchange="toggleled('led3', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            </div>
+        </div>
+
+        <div class="moisture-item">
+            <h2>Crop no 2</h2>
+            <h4>Moisture Level</h4>
+            <div class="gauge" id="gaugeMoisture2">
+                <div class="gauge__body">
+                    <div class="gauge__fill"></div>
+                    <div class="gauge__cover">
+                        <p class="value" id="moisture2">0%</p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- LED control switches for Crop no 2 -->
+            <div class="data-item">
+            <div class="led-control">
+
+                <h4>RED LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led4Switch" onchange="toggleled('led4', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>BLUE LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led5Switch" onchange="toggleled('led5', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>UV LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led6Switch" onchange="toggleled('led6', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            </div>
+        </div>
+        
+
+        <div class="moisture-item">
+            <h2>Crop no 3</h2>
+            <h4>Moisture Level</h4>
+            <div class="gauge" id="gaugeMoisture3">
+                <div class="gauge__body">
+                    <div class="gauge__fill"></div>
+                    <div class="gauge__cover">
+                        <p class="value" id="moisture3">0%</p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- LED control switches for Crop no 3 -->
+            <div class="data-item">
+            <div class="led-control">
+
+                <h4>RED LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led7Switch" onchange="toggleled('led7', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>BLUE LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led8Switch" onchange="toggleled('led8', this.checked)">
+                    <span class="slider"></span>
+                </label>
+                <h4>UV LED</h4>
+                <label class="switch">
+                    <input type="checkbox" id="led9Switch" onchange="toggleled('led9', this.checked)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+        <div class="moisture-sensors">
+        <div class="moisture-item">
+         
+            <!-- LED control switches for Crop no 1 -->
+            <div class="data-item">
+            <div class="led-control">
+            <h4>Crop count</h4>
+            <input type="number" id="count" oninput="updateIrrigationTime('count', this.value)">
+            
+            <br>
+            <br>
+                                   <!-- growthmode checkbox -->
+                <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                  <label class="btn btn-primary" for="growthmodeCheckbox">Fertilizer mode</label>
+                    <input type="checkbox" class="btn-check" id="growthmodeCheckbox" onchange="togglegrowthmode(this.checked)">
+                </div>
+                
+                <!-- Fertilized checkbox -->
+                <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                  <label class="btn btn-primary" for="firtilizedCheckbox">Fertilized</label>
+                    <input type="checkbox" class="btn-check" id="fertilizedCheckbox" onchange="toggleFertilized(this.checked)">
+                    
+                </div>
+             
+                
+            </div>
+            </div>
+        </div>
+        </div>
+
+    
+        <div class="moisture-sensors">
+        <div class="moisture-item">
+         
+            <!-- LED control switches for Crop no 1 -->
+            <div class="data-item">
+            <div class="led-control">
+                <h2>Irrigation Time</h2>
+                <div class="date-time-container">
+                    <input type="date" id="irrigationDate">
+                    <input type="time" id="irrigationTime">
+                    <button onclick="submitIrrigationTime()">Submit</button>
+                </div>
+            </div>
+            </div>
+            </div>
+        </div>
+        </div>
+
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<script>
+    // Your Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgbGOlp-zCR69h7F0cjwnxQAfME_bwPqM",
+        authDomain: "agritek-2d80d.firebaseapp.com",
+        databaseURL: "https://agritek-2d80d-default-rtdb.firebaseio.com",
+        projectId: "agritek-2d80d",
+        storageBucket: "agritek-2d80d.appspot.com",
+        messagingSenderId: "967735410280",
+        appId: "1:967735410280:web:3f0c958ca8881c842885dd",
+        measurementId: "G-FYMXWNHVQD"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Define toggleLED
+    function toggleled(ledId, state) {
+        const ref = firebase.database().ref(`control/${ledId}`);
+        ref.set(state ? 1 : 0);
+    }
+
+    // Retrieve sensor data
+    const database = firebase.database();
+    const humidityRef = database.ref('sensors/humidity');
+    const temperatureRef = database.ref('sensors/temperature');
+    const moisture1Ref = database.ref('sensors/moisture1');
+    const moisture2Ref = database.ref('sensors/moisture2');
+    const moisture3Ref = database.ref('sensors/moisture3');
+    const led1Ref = database.ref('control/led1');
+    const led2Ref = database.ref('control/led2');
+    const led3Ref = database.ref('control/led3');
+    const led4Ref = database.ref('control/led4');
+    const led5Ref = database.ref('control/led5');
+    const led6Ref = database.ref('control/led6');
+    const led7Ref = database.ref('control/led7');
+    const led8Ref = database.ref('control/led8');
+    const led9Ref = database.ref('control/led9');
+    const countRef = database.ref('control/count');
+    
+    
+    
+    // Add references to the irrigation times
+const irrigation1Ref = database.ref('control/irrigation1');
+const irrigation2Ref = database.ref('control/irrigation2');
+const irrigation3Ref = database.ref('control/irrigation3');
+const irrigation4Ref = database.ref('control/irrigation4');
+const irrigation5Ref = database.ref('control/irrigation5');
+
+
+
+
+
+
+// Function to update irrigation time
+function updateIrrigationTime(irrigationId, value) {
+    const ref = firebase.database().ref(`control/${irrigationId}`);
+    ref.set(parseInt(value));
+}
+
+// Retrieve initial irrigation time data
+irrigation1Ref.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('irrigationTime1').value = time;
+});
+
+irrigation2Ref.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('irrigationTime2').value = time;
+});
+
+irrigation3Ref.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('irrigationTime3').value = time;
+});
+
+irrigation4Ref.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('irrigationTime4').value = time;
+});
+
+// Retrieve initial irrigation time data
+irrigation5Ref.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('irrigationTime5').value = time;
+});
+
+// Retrieve initial irrigation time data
+countRef.on('value', (snapshot) => {
+    const time = snapshot.val();
+    document.getElementById('count').value = time;
+});
+
+
+
+
+    humidityRef.on('value', (snapshot) => {
+        const humidity = snapshot.val();
+        document.getElementById('humidity').innerHTML = `${humidity}%`;
+        // Update humidity gauge
+        setGaugeValue(document.getElementById("gaugeHumidity"), humidity / 100);
+    });
+
+    temperatureRef.on('value', (snapshot) => {
+        const temperature = snapshot.val();
+        document.getElementById('temperature').innerHTML = `${temperature}&#8451;`;
+        // Update temperature gauge
+        setGaugeValue(document.getElementById("gaugeTemp"), (temperature - 20) / 40);
+    });
+
+    moisture1Ref.on('value', (snapshot) => {
+        const moisture1 = snapshot.val();
+        document.getElementById('moisture1').innerHTML = `${moisture1}%`;
+        // Update moisture sensor 1 gauge
+        setGaugeValue(document.getElementById("gaugeMoisture1"), moisture1 / 100);
+    });
+
+    moisture2Ref.on('value', (snapshot) => {
+        const moisture2 = snapshot.val();
+        document.getElementById('moisture2').innerHTML = `${moisture2}%`;
+        // Update moisture sensor 2 gauge
+        setGaugeValue(document.getElementById("gaugeMoisture2"), moisture2 / 100);
+    });
+
+    moisture3Ref.on('value', (snapshot) => {
+        const moisture3 = snapshot.val();
+        document.getElementById('moisture3').innerHTML = `${moisture3}%`;
+        // Update moisture sensor 3 gauge
+        setGaugeValue(document.getElementById("gaugeMoisture3"), moisture3 / 100);
+    });
+
+    function setGaugeValue(element, value) {
+        const fill = element.querySelector('.gauge__fill');
+        fill.style.transform = `rotate(${value * 180}deg)`;
+    }
+
+    led1Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led1Switch').checked = state === 1;
+    });
+
+    led2Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led2Switch').checked = state === 1;
+    });
+
+    led3Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led3Switch').checked = state === 1;
+    });
+
+    led4Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led4Switch').checked = state === 1;
+    });
+
+    led5Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led5Switch').checked = state === 1;
+    });
+
+    led6Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led6Switch').checked = state === 1;
+    });
+
+    led7Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led7Switch').checked = state === 1;
+    });
+
+    led8Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led8Switch').checked = state === 1;
+    });
+
+    led9Ref.on('value', (snapshot) => {
+        const state = snapshot.val();
+        document.getElementById('led9Switch').checked = state === 1;
+    });
+    
+    // Function to toggle fertilized state
+function toggleFertilized(state) {
+    const ref = firebase.database().ref('control/fertilized');
+    ref.set(state ? 1 : 0);
+}
+
+function togglegrowthmode(state) {
+    const ref = firebase.database().ref('control/growthmode');
+    ref.set(state ? 1 : 0);
+}
+
+
+
+// Retrieve initial fertilized state
+const fertilizedRef = database.ref('control/fertilized');
+fertilizedRef.on('value', (snapshot) => {
+    const state = snapshot.val();
+    document.getElementById('fertilizedCheckbox').checked = state === 1;
+});
+
+// Retrieve initial fertilized state
+const growthmodeRef = database.ref('control/growthmode');
+growthmodeRef.on('value', (snapshot) => {
+    const state = snapshot.val();
+    document.getElementById('growthmodeCheckbox').checked = state === 1;
+});
+
+    
+function submitIrrigationTime() {
+    // Get the date and time input values
+    const irrigationDate = document.getElementById('irrigationDate').value;
+    const irrigationTime = document.getElementById('irrigationTime').value;
+
+    // Parse date and time
+    const date = new Date(irrigationDate + 'T' + irrigationTime);
+
+    // Extract year, month, day, hour, and minute
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // Month is zero-based, so add 1
+    const day = date.getDate();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+
+    // Set values to Firebase references
+    irrigation1Ref.set(year);
+    irrigation2Ref.set(month);
+    irrigation3Ref.set(day);
+    irrigation4Ref.set(hour);
+    irrigation5Ref.set(minute);
+}
+
+
+
+
+</script>
+
+</body>
+</html>
